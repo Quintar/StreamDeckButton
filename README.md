@@ -1,5 +1,5 @@
-# PluginTemplate
+# Stream Deck Controller Button
 
-A simple plugin you can use as a starting point for your amazing creations!
+This plugin is for the StreamController. It allows to set the 3 labels (top, center, bottom) to whatever text you send to localhost:65432 you just have to concatenate the string with a pipe "|" symbol (and end it for good measure)
 
 For more information checkout [the docs](https://streamcontroller.github.io/docs/latest/).
