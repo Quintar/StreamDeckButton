@@ -18,6 +18,8 @@ from gi.repository import Gtk, Adw
 class DisplayAction(ActionBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.plugin_base.connect_to_event(event_id="com_quintar_streamdeckbutton::LabelChangeEvent",
+                                          callback=self.on_label_change)
                 
     def on_ready(self) -> None:
         log.info("StreamDeck Button Plugin is ready!")
@@ -25,17 +27,19 @@ class DisplayAction(ActionBase):
         self.set_media(media_path=icon_path, size=0.75)        
         
     def on_key_down(self) -> None:
-        self.set_center_label(str("Pressed"))
-        log.info("Key down")
+        pass
     
     def on_key_up(self) -> None:
-        self.set_center_label(str("Released"))
-        log.info("Key up")
-
-    def on_tick(self) -> None:
-        if(self.plugin_base.backend): 
-            self.set_top_label   (str(self.plugin_base.backend.get_top_label()))
-            self.set_center_label(str(self.plugin_base.backend.get_center_label()))
-            self.set_bottom_label(str(self.plugin_base.backend.get_bottom_label()))
-        # This function is called every second if a tick interval is set in the action's settings
         pass
+
+    async def on_label_change(self, *args, **kwargs):
+        log.info(f"Label change event received with args: {args}")
+        eventName = ""
+        labels = []
+        if(len(args) >= 2):
+            eventName = str(args[0])
+            labels = args[1]
+
+        if(len(labels) >= 1): self.set_top_label   (str(labels[0]))
+        if(len(labels) >= 2): self.set_center_label(str(labels[1]))
+        if(len(labels) >= 3): self.set_bottom_label(str(labels[2]))

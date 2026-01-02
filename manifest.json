@@ -1,7 +1,11 @@
 {
     "version": "0.1",
-    "thumbnail": "",
+    "thumbnail": "store/thumbnail.png",
     "id": "com_quintar_streamdeckbutton",
     "name": "StreamDeck-Button",
-    "author": "Quintar"
+    "author": "Quintar",
+    "descriptions": {
+        "en": "A button that can display labels sent from an external application via a socket. Just echo \"Text1|Text2|Text3|\" > /dev/tcp/localhost/65432",
+        "de": "Ein Knopf, der Beschriftungen von einer externen Anwendung über einen Socket empfangen kann. Einfach echo \"Text1|Text2|Text3|\" > /dev/tcp/localhost/65432"
+    }
 }

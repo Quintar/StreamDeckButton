@@ -1,5 +1,6 @@
 # Import StreamController modules
 import os
+from .internal.LabelChangeEventListener import LabelChangeEvent
 from src.backend.PluginManager.PluginBase import PluginBase
 from src.backend.PluginManager.ActionHolder import ActionHolder
 
@@ -9,8 +10,6 @@ from .actions.DisplayAction.DisplayAction import DisplayAction
 class StreamDeckButton(PluginBase):
     def __init__(self):
         super().__init__()
-        backend_path = os.path.join(self.PATH, "backend", "backend.py") 
-        self.launch_backend(backend_path=backend_path, open_in_terminal=False) #set to False in production
         
         ## Register actions
         self.display_action_holder = ActionHolder(
@@ -21,10 +20,17 @@ class StreamDeckButton(PluginBase):
         )
         self.add_action_holder(self.display_action_holder)
 
+        # Events
+        self.text_change_event_holder = LabelChangeEvent(
+            self,
+            "com_quintar_streamdeckbutton::LabelChangeEvent"
+        )
+        self.add_event_holder(self.text_change_event_holder)
+
         # Register plugin
         self.register(
-            plugin_name = "Template",
-            github_repo = "https://github.com/Quintar/StreamDeckPlugin",
+            plugin_name = "StreamDeck Button",
+            github_repo = "https://github.com/Quintar/StreamDeckButton",
             plugin_version = "1.0.0",
             app_version = "1.15.0-alpha"
         )
