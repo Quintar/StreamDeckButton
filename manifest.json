@@ -1,6 +1,7 @@
 {
-    "version": "",
+    "version": "0.1",
     "thumbnail": "",
-    "id": "",
-    "name": ""
+    "id": "com_quintar_streamdeckbutton",
+    "name": "StreamDeck-Button",
+    "author": "Quintar"
 }
