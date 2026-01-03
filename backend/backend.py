@@ -25,7 +25,6 @@ class Backend(BackendBase):
 
     def start(self):
         log.info("Start server")
-        self.running = True
         threading.Thread(target=self._init_socket, args=(self.HOST, self.PORT,)).start()                
 
     def _init_socket(self, host, port: int):
@@ -33,14 +32,19 @@ class Backend(BackendBase):
         self.serv_socket.bind((host, port))
         self.serv_socket.listen(self.max_clients)
         while True:
-            readable, writable, exceptional = select.select(self.inputs, self.outputs, self.inputs, 1)
-            for s in readable:
-                if s is self.serv_socket:
-                    client, address = self.serv_socket.accept()
-                    log.info(f"Accepted connection from {address}")
-                    threading.Thread(target=self._handle_client, args=(client, address)).start()
-                else:
-                    log.warning("Unknown socket readable")
+            try:
+                readable, writable, exceptional = select.select(self.inputs, self.outputs, self.inputs, 1)
+                for s in readable:
+                    if s is self.serv_socket:
+                        client, address = self.serv_socket.accept()
+                        self.running = True
+                        log.info(f"Accepted connection from {address}")
+                        threading.Thread(target=self._handle_client, args=(client, address)).start()
+                    else:
+                        log.warning("Unknown socket readable")
+            except Exception as e:
+                log.warning(f"Error while establishing port {e}")
+                self.running = False
 
     def _handle_client(self, client, address):
         log.info(f"Connection-Thread from {address}")
@@ -66,13 +70,15 @@ class Backend(BackendBase):
         )
 
     def on_advanced_action_triggered(self, host, port):
-        if (host == self.HOST and port == self.PORT and self.serv_socket.fileno() != -1):
-            log.info("NO Restart of server with settings {host}:{port}")
-            return
-        log.info("Restart server with new settings {host}:{port}")
+        log.info(f"Restart server with new settings {host}:{port}")
         self.HOST = host
         self.PORT = port
-        self.serv_socket.close()
+        if(self.serv_socket):
+            try:
+                self.serv_socket.shutdown(0)
+                self.serv_socket.close()
+            except Exception as e:
+                pass
         self.serv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.inputs = [self.serv_socket]
         self.outputs = []
