@@ -115,7 +115,7 @@ class DisplayAction(ActionBase):
 
 
     async def on_label_change(self, *args, **kwargs):
-        log.info(f"Label change event received with args: {args} {kwargs}")
+        #log.info(f"Label change event received with args: {args} {kwargs}")
         eventName = ""
         labels = []
         if(len(kwargs) >= 2):

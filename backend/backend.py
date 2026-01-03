@@ -38,7 +38,7 @@ class Backend(BackendBase):
                     if s is self.serv_socket:
                         client, address = self.serv_socket.accept()
                         self.running = True
-                        log.info(f"Accepted connection from {address}")
+                        #log.info(f"Accepted connection from {address}")
                         threading.Thread(target=self._handle_client, args=(client, address)).start()
                     else:
                         log.warning("Unknown socket readable")
@@ -47,7 +47,7 @@ class Backend(BackendBase):
                 self.running = False
 
     def _handle_client(self, client, address):
-        log.info(f"Connection-Thread from {address}")
+        #log.info(f"Connection-Thread from {address}")
         try:
             request_bytes = b"" + client.recv(1024)
         except Exception as e:
@@ -63,7 +63,7 @@ class Backend(BackendBase):
         if (result[0]): self.top_label = result[0]
         if (result[1]): self.center_label = result[1]
         if (result[2]): self.bottom_label = result[2]
-        log.info(request_str)
+        #log.info(request_str)
         self.frontend.trigger_event(
             event_id="com_quintar_streamdeckbutton::AdvancedEvent",
             data=result
