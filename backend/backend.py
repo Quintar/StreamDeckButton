@@ -10,8 +10,6 @@ class Backend(BackendBase):
     PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
     max_clients = 1
     serv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    inputs = [serv_socket]
-    outputs = []
 
     def __init__(self):
         super().__init__()
@@ -19,13 +17,15 @@ class Backend(BackendBase):
         self.center_label : str = ""
         self.bottom_label : str = ""
         self.running = False
-        #if (not self.running): self.start()
         log.info("Backend initialized")
 
 
     def start(self):
         log.info("Start server")
-        threading.Thread(target=self._init_socket, args=(self.HOST, self.PORT,)).start()                
+        if (not self.running):
+            self.serv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            threading.Thread(target=self._init_socket, args=(self.HOST, self.PORT,)).start()
+        else: log.warning("Server still running")
 
     def _init_socket(self, host, port: int):
         log.info(f"Starting socket server on {host}:{port}")
@@ -33,18 +33,14 @@ class Backend(BackendBase):
         self.serv_socket.listen(self.max_clients)
         while True:
             try:
-                readable, writable, exceptional = select.select(self.inputs, self.outputs, self.inputs, 1)
-                for s in readable:
-                    if s is self.serv_socket:
-                        client, address = self.serv_socket.accept()
-                        self.running = True
-                        #log.info(f"Accepted connection from {address}")
-                        threading.Thread(target=self._handle_client, args=(client, address)).start()
-                    else:
-                        log.warning("Unknown socket readable")
+                self.running = True
+                client, address = self.serv_socket.accept()
+                #log.info(f"Accepted connection from {address}")
+                self._handle_client(client, address)
             except Exception as e:
                 log.warning(f"Error while establishing port {e}")
                 self.running = False
+                break
 
     def _handle_client(self, client, address):
         #log.info(f"Connection-Thread from {address}")

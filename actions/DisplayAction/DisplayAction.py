@@ -1,4 +1,5 @@
 # Import StreamController modules
+import random
 from src.backend.PluginManager.ActionBase import ActionBase
 from src.backend.DeckManagement.DeckController import DeckController
 from src.backend.PageManagement.Page import Page
