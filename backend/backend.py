@@ -8,7 +8,7 @@ from loguru import logger as log
 class Backend(BackendBase):
     HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
     PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
-    max_clients = 1
+    max_clients = 2
     serv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def __init__(self):
@@ -37,6 +37,7 @@ class Backend(BackendBase):
                 client, address = self.serv_socket.accept()
                 #log.info(f"Accepted connection from {address}")
                 self._handle_client(client, address)
+                self.serv_socket.close()
             except Exception as e:
                 log.warning(f"Error while establishing port {e}")
                 self.running = False
@@ -53,6 +54,8 @@ class Backend(BackendBase):
         if not request_bytes:
             log.info("Connection closed")
             client.close()
+            return
+        client.close()
         request_str = request_bytes.decode(errors="ignore").strip()
         if("|" not in request_str): request_str += "|"
         result = request_str.split("|")
