@@ -37,7 +37,7 @@ class Backend(BackendBase):
                 client, address = self.serv_socket.accept()
                 #log.info(f"Accepted connection from {address}")
                 self._handle_client(client, address)
-                self.serv_socket.close()
+                #self.serv_socket.close() Socket close not neccesary?
             except Exception as e:
                 log.warning(f"Error while establishing port {e}")
                 self.running = False
