@@ -28,6 +28,8 @@ class DisplayAction(ActionBase):
         self.plugin_base.asset_manager.icons.add_listener(self._icon_changed)
         self.plugin_base.asset_manager.colors.add_listener(self._color_changed)
 
+        self.create_generative_ui()
+
         self.plugin_base.connect_to_event(
             event_id="com_quintar_streamdeckbutton::AdvancedEvent",
             callback=self.on_label_change
@@ -46,8 +48,7 @@ class DisplayAction(ActionBase):
         pass
     
     def on_key_up(self) -> None:
-        #self.display_settings()
-        self.plugin_base.backend.start()
+        self.display_settings()
 
     async def _icon_changed(self, event: str, key: str, asset: Any) -> None:
         if not key in self.icon_keys:
@@ -78,12 +79,40 @@ class DisplayAction(ActionBase):
         self.color_name = key
         self.display_color()
 
+    def create_generative_ui(self) -> None:
+        self.ip_row = EntryRow(
+            action_core=self,
+            var_name="server.ip",
+            default_value="localhost",
+            title="IP or Hostname",
+            auto_add=False,
+            complex_var_name=True,
+            on_change=self.on_change,
+        )
+        self.port_row = EntryRow(
+            action_core=self,
+            var_name="server.port",
+            default_value="65432",
+            title="Port (Any Number > 1023)",
+            auto_add=False,
+            complex_var_name=True,
+            on_change=self.on_change,
+        )
+
+    def on_change(self, widget, new_value, old_value) -> None:
+        if(self.ready): self.display_settings()
+
+    def get_config_rows(self) -> List[Any]:
+        self.display_settings()
+        return [self.ip_row.widget, self.port_row.widget]
+
+
     def display_settings(self):
         settings = self.get_settings()
-#        self.plugin_base.backend.set_path(self.ip_row.get_text(), int(self.port_row.get_text()))
-        log.info(f"Current Settings: {settings}")
-        #self.set_top_label      (settings["file_path"])
-#        self.set_center_label   (self.port_row.get_text())
+        self.plugin_base.backend.on_advanced_action_triggered(self.ip_row.get_text(), int(self.port_row.get_text()))
+        #log.info(f"Current Settings: {settings}")
+        self.set_top_label      (self.ip_row.get_text())
+        self.set_center_label   (self.port_row.get_text())
 
 
     async def on_label_change(self, *args, **kwargs):

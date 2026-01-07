@@ -4,7 +4,6 @@ import threading
 from streamcontroller_plugin_tools import BackendBase 
 from loguru import logger as log
 
-
 class Backend(BackendBase):
     HOST = "127.0.0.1"  # Standard loopback interface address (localhost)
     PORT = 65432  # Port to listen on (non-privileged ports are > 1023)
@@ -34,13 +33,25 @@ class Backend(BackendBase):
         while True:
             try:
                 self.running = True
+                log.warning(f"Wait for Connection")
                 client, address = self.serv_socket.accept()
-                #log.info(f"Accepted connection from {address}")
+                log.info(f"Accepted connection from {address}")
                 self._handle_client(client, address)
-                #self.serv_socket.close() Socket close not neccesary?
+                log.warning(f"Shutting down")
+                self.serv_socket.shutdown(2)
+                log.warning(f"Closing")
+                self.serv_socket.close()
+
+                log.warning(f"Creating")
+                self.serv_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                log.warning(f"Binding")
+                self.serv_socket.bind((host, port))
+                log.warning(f"Listening")
+                self.serv_socket.listen(self.max_clients)
+                #client.close()
             except Exception as e:
-                log.warning(f"Error while establishing port {e}")
                 self.running = False
+                log.warning(f"Error while establishing port {e}")
                 break
 
     def _handle_client(self, client, address):
@@ -59,9 +70,9 @@ class Backend(BackendBase):
         request_str = request_bytes.decode(errors="ignore").strip()
         if("|" not in request_str): request_str += "|"
         result = request_str.split("|")
-        if (result[0]): self.top_label = result[0]
-        if (result[1]): self.center_label = result[1]
-        if (result[2]): self.bottom_label = result[2]
+        if (len(result) >= 1): self.top_label = result[0]
+        if (len(result) >= 2): self.center_label = result[1]
+        if (len(result) >= 3): self.bottom_label = result[2]
         #log.info(request_str)
         self.frontend.trigger_event(
             event_id="com_quintar_streamdeckbutton::AdvancedEvent",
