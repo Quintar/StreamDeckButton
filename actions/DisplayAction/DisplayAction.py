@@ -56,7 +56,6 @@ class DisplayAction(ActionBase):
         pass
     
     def on_key_up(self) -> None:
-        #self.display_settings()
         self.file_reader.start()
 
     async def _icon_changed(self, event: str, key: str, asset: Any) -> None:
@@ -87,14 +86,6 @@ class DisplayAction(ActionBase):
         self.current_color = asset
         self.color_name = key
         self.display_color()
-
-    def display_settings(self):
-        settings = self.get_settings()
-#        self.plugin_base.backend.set_path(self.ip_row.get_text(), int(self.port_row.get_text()))
-        log.info(f"Current Settings: {settings}")
-        #self.set_top_label      (settings["file_path"])
-#        self.set_center_label   (self.port_row.get_text())
-
 
     def on_label_change(self, *args, **kwargs):
         #log.info(f"Label change event received with args: {args} {kwargs}")
