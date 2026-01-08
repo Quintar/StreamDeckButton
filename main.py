@@ -1,14 +1,15 @@
 # Import StreamController modules
+
 from typing import Any
 from src.backend.PluginManager.PluginBase import PluginBase
 from src.backend.PluginManager.ActionHolder import ActionHolder
 from src.backend.PluginManager.EventHolder import EventHolder
 from loguru import logger as log
 
-from .settings_file import KEY_FILE_PATH, PluginSettings
-
 import os
 
+# Import settings
+from .settings_file import PluginSettings
 # Import actions
 from .actions.DisplayAction.DisplayAction import DisplayAction
 
@@ -19,8 +20,6 @@ class StreamDeckButton(PluginBase):
         self.has_plugin_settings = True
         self.lm = self.locale_manager
         self.lm.set_to_os_default()
-
-        self.prepare_backend()
 
         self._settings_manager: PluginSettings = PluginSettings(self)
 
@@ -33,11 +32,18 @@ class StreamDeckButton(PluginBase):
         )
         self.add_action_holder(self.display_action_holder)
 
-        self._event_holder = EventHolder(
+        self._event_holder_data_received = EventHolder(
             plugin_base=self,
-            event_id="com_quintar_streamdeckbutton::AdvancedEvent",
+            event_id="com_quintar_streamdeckbutton::DataReceiveEvent",
         )
-        self.add_event_holder(self._event_holder)
+        self.add_event_holder(self._event_holder_data_received)
+
+        self._event_holder_settings_changed = EventHolder(
+            plugin_base=self,
+            event_id="com_quintar_streamdeckbutton::SettingsChangedEvent",
+        )
+        self.add_event_holder(self._event_holder_settings_changed)
+
 
         # Register plugin
         self.register(
@@ -46,29 +52,15 @@ class StreamDeckButton(PluginBase):
             plugin_version = "1.0.0",
             app_version = "1.15.0-alpha"
         )
+    # WARNING EVENTS ARE BROCKEN! They create internal file handles that aren't being destroyed unless you change the screen
+    # DON'T USE UNTIL FURTHER NOTICE
+    def trigger_event_data_received(self, event_id: str, data: Any):
+        self._event_holder_data_received.trigger_event(event_id=event_id, data=data)
 
-    def trigger_event(self, event_id: str, data: Any):
-        self._event_holder.trigger_event(event_id=event_id, data=data)
+    def trigger_event_settings_changed(self, event_id: str, data: Any):
+        self._event_holder_settings_changed.trigger_event(event_id=event_id, data=data)
+
 
     def get_settings_area(self) -> Any:
         return self._settings_manager.get_settings_area()
     
-    def prepare_backend(self) -> bool:
-        # Backend
-        backend_path = os.path.join(self.PATH, "backend", "backend_file.py") 
-        self.launch_backend(
-            backend_path=backend_path, 
-            #venv_path=os.path.join(self.PATH, ".venv"),
-            open_in_terminal=False)
-        self.wait_for_backend(tries=5)
-
-        if (self.backend_connection is None):
-            log.error("Backend setup timeout")
-            return False
-        log.info("Backend setup...")
-        settings = self.get_settings()
-        file_path = settings.get(KEY_FILE_PATH, "~/lines.txt")
-        self.backend.set_path(file_path)
-
-        return True
-        

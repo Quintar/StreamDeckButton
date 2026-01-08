@@ -59,11 +59,7 @@ class PluginSettings:
         settings = self._plugin_base.get_settings()
         settings[key] = value
         self._plugin_base.set_settings(settings)
-
-        if not self._plugin_base.backend and not settings[KEY_FILE_PATH]:
-            self._update_status("Failed to load backend", True)
-            return
-        self._set_settings_on_backend(settings)
+        #self._set_settings_on_backend(settings)
 
     def _on_change_file_path(self, entry: Any, _: Any) -> None:
         log.info(f"Settings change file path")
@@ -76,6 +72,10 @@ class PluginSettings:
         self._update_settings(KEY_CHECK_INTERVAL, float(val))
 
     def _set_settings_on_backend(self, settings):
-        self._plugin_base.backend.set_path(settings.get(KEY_FILE_PATH, ""))
-        self._plugin_base.backend.set_interval(settings.get(KEY_CHECK_INTERVAL, "1.0"))
+        self._plugin_base.trigger_event_settings_changed(
+            event_id="com_quintar_streamdeckbutton::SettingsChangedEvent",
+            data=(settings.get(KEY_FILE_PATH, ""), settings.get(KEY_CHECK_INTERVAL, "1.0"))
+        )
+        #self._plugin_base.backend.set_path(settings.get(KEY_FILE_PATH, ""))
+        #self._plugin_base.backend.set_interval(settings.get(KEY_CHECK_INTERVAL, "1.0"))
 
