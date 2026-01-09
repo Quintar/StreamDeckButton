@@ -1,9 +1,9 @@
 {
     "generic": {
-        "copyright": "",
-        "original-url": "",
-        "license": "",
-        "license-url": "",
-        "description": ""
+        "copyright": "Patrick Bartolovic",
+        "original-url": "https://github.com/Quintar/StreamDeckButton",
+        "license": "MIT",
+        "license-url": "https://opensource.org/license/mit",
+        "description": "A button that can display labels sent from an external application via a text file ion a certain interval."
     }
 }
