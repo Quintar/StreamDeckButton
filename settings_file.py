@@ -21,15 +21,14 @@ class PluginSettings:
 
 
     def get_settings_area(self) -> Adw.PreferencesGroup:
-        log.info(f"Get settings area")
         self._file_path = Adw.EntryRow(
-            title="File path" #self._plugin_base.lm.get("actions.base.file_path")
+            title=self._plugin_base.lm.get("preferences.file_path")
         )
 
         adjustment = Gtk.Adjustment.new(1.0, 0.0, 10000.0, 1.0, 10.0, 0.0)
         
         self._check_interval = Adw.SpinRow(
-            title="File check interval (seconds)", #self._plugin_base.lm.get("actions.base.file_path")
+            title=self._plugin_base.lm.get("preferences.interval_title"),
             adjustment=adjustment
         )
 
@@ -39,13 +38,12 @@ class PluginSettings:
         self._load_settings()
 
         pref_group = Adw.PreferencesGroup()
-        pref_group.set_title("File path and Interval")#self._plugin_base.lm.get("actions.base.credentials.title"))
+        pref_group.set_title(self._plugin_base.lm.get("preferences.title"))
         pref_group.add(self._file_path)
         pref_group.add(self._check_interval)
         return pref_group
     
     def _load_settings(self) -> None:
-        log.info(f"Load settings")
         settings = self._plugin_base.get_settings()
         file_path = settings.get(KEY_FILE_PATH, "")
         interval = settings.get(KEY_CHECK_INTERVAL, "1.0")
@@ -55,18 +53,15 @@ class PluginSettings:
 
 
     def _update_settings(self, key: str, value: str) -> None:
-        log.info(f"Update settings: {key}, {value}")
         settings = self._plugin_base.get_settings()
         settings[key] = value
         self._plugin_base.set_settings(settings)
 
     def _on_change_file_path(self, entry: Any, _: Any) -> None:
-        log.info(f"Settings change file path")
         val = entry.get_text().strip()
         self._update_settings(KEY_FILE_PATH, val)
 
     def _on_change_check_interval(self, entry: Any, _: Any) -> None:
-        log.info(f"Settings change check interval")
         val = entry.get_text().strip()
         self._update_settings(KEY_CHECK_INTERVAL, float(val))
 

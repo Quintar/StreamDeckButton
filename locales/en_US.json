@@ -1,0 +1,6 @@
+{
+    "plugin.name": "StreamDeck Button",
+    "preferences.file_path": "File path",
+    "preferences.title": "File path and interval",
+    "preferences.interval_title": "File check interval (seconds)"
+}
