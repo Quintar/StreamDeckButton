@@ -4,9 +4,6 @@ from typing import Any
 from src.backend.PluginManager.PluginBase import PluginBase
 from src.backend.PluginManager.ActionHolder import ActionHolder
 from src.backend.PluginManager.EventHolder import EventHolder
-from loguru import logger as log
-
-import os
 
 # Import settings
 from .settings_file import PluginSettings
@@ -23,7 +20,7 @@ class StreamDeckButton(PluginBase):
 
         self._settings_manager: PluginSettings = PluginSettings(self)
 
-        ## Register actions
+        # Register actions
         self.display_action_holder = ActionHolder(
             plugin_base = self,
             action_base = DisplayAction,
@@ -31,12 +28,6 @@ class StreamDeckButton(PluginBase):
             action_name = "Display Action",
         )
         self.add_action_holder(self.display_action_holder)
-
-        self._event_holder_data_received = EventHolder(
-            plugin_base=self,
-            event_id="com_quintar_streamdeckbutton::DataReceiveEvent",
-        )
-        self.add_event_holder(self._event_holder_data_received)
 
         self._event_holder_settings_changed = EventHolder(
             plugin_base=self,
@@ -52,15 +43,13 @@ class StreamDeckButton(PluginBase):
             plugin_version = "1.0.0",
             app_version = "1.15.0-alpha"
         )
-    # WARNING EVENTS ARE BROCKEN! They create internal file handles that aren't being destroyed unless you change the screen
-    # DON'T USE UNTIL FURTHER NOTICE
-    def trigger_event_data_received(self, event_id: str, data: Any):
-        self._event_holder_data_received.trigger_event(event_id=event_id, data=data)
-
-    def trigger_event_settings_changed(self, event_id: str, data: Any):
-        self._event_holder_settings_changed.trigger_event(event_id=event_id, data=data)
 
 
     def get_settings_area(self) -> Any:
         return self._settings_manager.get_settings_area()
-    
+
+    # WARNING EVENTS ARE BROCKEN! They create internal file handles that aren't being destroyed unless you change the screen
+    # DON'T USE UNTIL FURTHER NOTICE
+
+    def trigger_event_settings_changed(self, event_id: str, data: Any):
+        self._event_holder_settings_changed.trigger_event(event_id=event_id, data=data)    

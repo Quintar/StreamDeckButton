@@ -27,13 +27,9 @@ class DisplayAction(ActionBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # This is just to provide base functionality
         self.plugin_base.asset_manager.icons.add_listener(self._icon_changed)
         self.plugin_base.asset_manager.colors.add_listener(self._color_changed)
-
-        self.plugin_base.connect_to_event(
-            event_id="com_quintar_streamdeckbutton::DataReceiveEvent",
-            callback=self.on_label_change
-        )
 
         self.plugin_base.connect_to_event(
             event_id="com_quintar_streamdeckbutton::SettingsChangedEvent",
@@ -42,19 +38,12 @@ class DisplayAction(ActionBase):
 
                 
     def on_ready(self) -> None:
-        log.info("StreamDeck Button Plugin is ready!")
-        
-        icon_path = os.path.join(self.plugin_base.PATH, "assets", "info.png")
-        self.set_media(media_path=icon_path, size=0.75)
         self.file_reader = ReadFileContinously(self.plugin_base)
         settings = self.plugin_base.get_settings()
         self._set_file_reader_settings(settings.get(KEY_FILE_PATH, ""), settings.get(KEY_CHECK_INTERVAL, "1.0"))
         self.file_reader.start()
         ready = True
         
-    def on_key_down(self) -> None:
-        pass
-    
     def on_key_up(self) -> None:
         self.file_reader.start()
 
@@ -86,18 +75,6 @@ class DisplayAction(ActionBase):
         self.current_color = asset
         self.color_name = key
         self.display_color()
-
-    def on_label_change(self, *args, **kwargs):
-        #log.info(f"Label change event received with args: {args} {kwargs}")
-        eventName = ""
-        labels = []
-        if(len(kwargs) >= 2):
-            eventName = str(args[0])
-            labels = kwargs["data"]
-
-        if(len(labels) >= 1): self.set_top_label   (str(labels[0]))
-        if(len(labels) >= 2): self.set_center_label(str(labels[1]))
-        if(len(labels) >= 3): self.set_bottom_label(str(labels[2]))
 
     def on_tick(self):
         self.set_top_label   (str(self.file_reader.top_label))
