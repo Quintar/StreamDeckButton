@@ -48,7 +48,7 @@ class PluginSettings:
         file_path = settings.get(KEY_FILE_PATH, "")
         interval = settings.get(KEY_CHECK_INTERVAL, "1.0")
         self._file_path.set_text(file_path)
-        self._check_interval.set_value(interval)
+        self._check_interval.set_value(float(interval))
         self._set_settings_on_backend(settings)
 
 

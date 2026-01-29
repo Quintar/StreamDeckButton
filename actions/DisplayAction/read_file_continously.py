@@ -31,7 +31,7 @@ class ReadFileContinously():
                             # read file
                             line = f.readline()
                             self.handle_lines(line)
-                            time.sleep(self.COUNTDOWN)
+                            time.sleep(int(float(self.COUNTDOWN)))
                     # close file (end of with)
         except Exception as e:
             self.running = False
