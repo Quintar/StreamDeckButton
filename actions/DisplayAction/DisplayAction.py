@@ -1,7 +1,9 @@
 # Import StreamController modules
 import random
 
-from ...settings_file import KEY_CHECK_INTERVAL, KEY_FILE_PATH
+from GtkHelper.GenerativeUI.EntryRow import EntryRow
+from GtkHelper.GenerativeUI.SpinRow import SpinRow
+
 from .read_file_continously import ReadFileContinously
 from src.backend.PluginManager.ActionBase import ActionBase
 from src.backend.DeckManagement.DeckController import DeckController
@@ -23,26 +25,20 @@ gi.require_version("Adw", "1")
 
 class DisplayAction(ActionBase):
     ready = False
-    file_reader = {}
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.file_reader = ReadFileContinously()
 
         # This is just to provide base functionality
         self.plugin_base.asset_manager.icons.add_listener(self._icon_changed)
         self.plugin_base.asset_manager.colors.add_listener(self._color_changed)
 
-        self.plugin_base.connect_to_event(
-            event_id="com_quintar_streamdeckbutton::SettingsChangedEvent",
-            callback=self.on_settings_change
-        )
-
+        self.file_path_entry = EntryRow(self, "file_path", "", title="File Path", on_change=self.on_settings_changed)
+        self.refresh_spinner = SpinRow(self, "refresh_interval", 1.0, 0.1, 10.0, title="Refresh Interval", on_change=self.on_settings_changed)
                 
     def on_ready(self) -> None:
-        self.file_reader = ReadFileContinously(self.plugin_base)
-        settings = self.plugin_base.get_settings()
-        self._set_file_reader_settings(settings.get(KEY_FILE_PATH, ""), settings.get(KEY_CHECK_INTERVAL, "1.0"))
+        self._set_file_reader_settings(self.file_path_entry.get_text(), self.refresh_spinner.get_number())
         self.file_reader.start()
-        ready = True
         
     def on_key_up(self) -> None:
         self.file_reader.start()
@@ -77,14 +73,14 @@ class DisplayAction(ActionBase):
         self.display_color()
 
     def on_tick(self):
-        self.set_top_label   (str(self.file_reader.top_label))
+        self.set_top_label(str(self.file_reader.top_label))
         self.set_center_label(str(self.file_reader.center_label))
         self.set_bottom_label(str(self.file_reader.bottom_label))
 
 
-    def on_settings_change(self, *args, **kwargs):
+    def on_settings_changed(self, *args, **kwargs):
         log.info(f"Args: {kwargs}")
-        self._set_file_reader_settings(kwargs["data"][0], kwargs["data"][1])
+        self._set_file_reader_settings(self.file_path_entry.get_text(), self.refresh_spinner.get_number())
         
     def _set_file_reader_settings(self, file_path, interval):
         self.file_reader.set_path(file_path)

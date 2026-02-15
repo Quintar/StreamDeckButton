@@ -6,7 +6,6 @@ from src.backend.PluginManager.ActionHolder import ActionHolder
 from src.backend.PluginManager.EventHolder import EventHolder
 
 # Import settings
-from .settings_file import PluginSettings
 # Import actions
 from .actions.DisplayAction.DisplayAction import DisplayAction
 
@@ -14,11 +13,8 @@ class StreamDeckButton(PluginBase):
     def __init__(self):
         super().__init__()
 
-        self.has_plugin_settings = True
         self.lm = self.locale_manager
         self.lm.set_to_os_default()
-
-        self._settings_manager: PluginSettings = PluginSettings(self)
 
         # Register actions
         self.display_action_holder = ActionHolder(
@@ -43,10 +39,6 @@ class StreamDeckButton(PluginBase):
             plugin_version = "1.0.0",
             app_version = "1.15.0-alpha"
         )
-
-
-    def get_settings_area(self) -> Any:
-        return self._settings_manager.get_settings_area()
 
     # WARNING EVENTS ARE BROCKEN! They create internal file handles that aren't being destroyed unless you change the screen
     # DON'T USE UNTIL FURTHER NOTICE
